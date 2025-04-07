@@ -45,7 +45,7 @@ def add_managed_element(new_elements: list, pihole_action: str) -> None:
         domain_kind = "exact"
         if is_valid_regex(new_elements[0]):
             domain_kind = "regex"
-        url = f"{settings.app_config["PIHOLE_URL"]}{API_CALLS[api_type]["api"].format(type=pihole_action, kind=domain_kind)}"  # pylint: disable=C0301
+        url = f"{settings.app_config['PIHOLE_URL']}{API_CALLS[api_type]['api'].format(type=pihole_action, kind=domain_kind)}"  # pylint: disable=C0301
         del http_body["address"]
         del http_body["type"]
         http_body["domain"] = new_elements
@@ -72,7 +72,7 @@ def add_managed_element(new_elements: list, pihole_action: str) -> None:
 def deauth() -> None:
     _LOGGER.info("Closing auth session with Pihole")
     http_request = {
-        "url": f"{settings.app_config["PIHOLE_URL"]}/api/auth",
+        "url": f"{settings.app_config['PIHOLE_URL']}/api/auth",
         "method": "delete",
         "headers": {"X-FTL-SID": settings.app_config.get("AUTH_TOKEN")},
         "return_code": 204,
@@ -86,7 +86,7 @@ def get_auth_token() -> None:
         "Getting auth token from PiHole server: %s", settings.app_config["PIHOLE_URL"]
     )
     http_request = {
-        "url": f"{settings.app_config["PIHOLE_URL"]}/api/auth",
+        "url": f"{settings.app_config['PIHOLE_URL']}/api/auth",
         "method": "post",
         "return_code": 200,
         "body": {"password": settings.app_config["PIHOLE_API_KEY"]},
@@ -106,7 +106,7 @@ def get_managed_element(element_type: str) -> list:
     _LOGGER.info("Getting managed element from PiHole server of type %s", element_type)
     api_type = f"get_{element_type}"
     request = {
-        "url": f"{settings.app_config["PIHOLE_URL"]}{API_CALLS[api_type]["api"]}",
+        "url": f"{settings.app_config['PIHOLE_URL']}{API_CALLS[api_type]['api']}",
         "method": API_CALLS[api_type]["method"],
         "headers": {"X-FTL-SID": settings.app_config.get("AUTH_TOKEN")},
         "return_code": API_CALLS[api_type]["return_code"],
@@ -120,7 +120,7 @@ def get_managed_element(element_type: str) -> list:
 def update_gravity() -> None:
     _LOGGER.info("Closing auth session with Pihole")
     http_request = {
-        "url": f"{settings.app_config["PIHOLE_URL"]}/api/action/gravity",
+        "url": f"{settings.app_config['PIHOLE_URL']}/api/action/gravity",
         "method": "post",
         "headers": {"X-FTL-SID": settings.app_config.get("AUTH_TOKEN")},
         "return_code": 200,
@@ -135,7 +135,7 @@ def update_managed_element(modified_element: str, modify_attributes: dict) -> No
     url = ""
     if validators.url(modified_element):
         api_type = "modify_lists"
-        url = f"{settings.app_config["PIHOLE_URL"]}{API_CALLS[api_type]["api"].format(modified_element)}"  # pylint: disable=C0301
+        url = f"{settings.app_config['PIHOLE_URL']}{API_CALLS[api_type]['api'].format(modified_element)}"  # pylint: disable=C0301
     _LOGGER.info("STEP: %s item: %s", api_type, modified_element)
     request = {
         "url": url,
