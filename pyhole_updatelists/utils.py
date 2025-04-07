@@ -14,8 +14,7 @@ def string_to_bool(s):
         return s
     if s.lower() == "false":
         return False
-    else:
-        return True
+    return True
 
 
 def strip_comments(text: str) -> str:
