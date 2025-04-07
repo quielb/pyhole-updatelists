@@ -31,7 +31,7 @@ def add_managed_element(new_elements: list, pihole_action: str) -> None:
     _LOGGER.info("Adding new elements to PiHole")
     # Setup for a element type of List
     api_type = "add_lists"
-    url = f"{settings.app_config["PIHOLE_URL"]}{API_CALLS[api_type]["api"]}"
+    url = f"{settings.app_config['PIHOLE_URL']}{API_CALLS[api_type]['api']}"
     http_body = {
         "type": pihole_action,
         "comment": settings.app_config["COMMENT"],
