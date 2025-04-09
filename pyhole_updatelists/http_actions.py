@@ -18,7 +18,7 @@ def send_it(http_request: dict) -> str:
     if not http_request.get("verify", True):
         warnings.simplefilter("ignore", InsecureRequestWarning)
     response = requests.request(
-        url=requests.utils.requote_uri(http_request["url"]),  # type: ignore
+        url=http_request["url"],
         method=http_request["method"],
         headers=http_request.get("headers", None),
         json=http_request.get("body", None),

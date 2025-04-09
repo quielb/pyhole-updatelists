@@ -3,6 +3,7 @@ import logging
 
 import validators
 
+from requests.utils import quote as url_encode  # type: ignore
 from . import settings
 from .http_actions import send_it
 from .utils import is_valid_regex
@@ -18,7 +19,7 @@ API_CALLS = {
     "add_lists": {"api": "/api/lists", "method": "post", "return_code": 201},
     "get_lists": {"api": "/api/lists", "method": "get", "return_code": 200},
     "get_domains": {"api": "/api/domains", "method": "get", "return_code": 200},
-    "modify_domians": {
+    "modify_domains": {
         "api": "/api/domains/{type}/{kind}/{domain}",
         "method": "put",
         "return_code": 200,
@@ -130,12 +131,29 @@ def update_gravity() -> None:
 
 
 def update_managed_element(modified_element: str, modify_attributes: dict) -> None:
-    _LOGGER.info("Modifing element %s")
-    api_type = "modify_domains"
+    api_type = "modify_lists"
     url = ""
-    if validators.url(modified_element):
-        api_type = "modify_lists"
-        url = f"{settings.app_config['PIHOLE_URL']}{API_CALLS[api_type]['api'].format(modified_element)}"  # pylint: disable=C0301
+    http_host = settings.app_config["PIHOLE_URL"]
+    http_path = url_encode(API_CALLS[api_type]["api"].format(modified_element))
+
+    if not validators.url(modified_element):
+        # Bug fix for undocumented option
+        api_type = "modify_domains"
+        domain_kind = "exact"
+        if is_valid_regex(modified_element):
+            domain_kind = "regex"
+        http_host = settings.app_config["PIHOLE_URL"]
+        http_path = url_encode(
+            API_CALLS[api_type]["api"].format(
+                type=modify_attributes["type"],
+                kind=domain_kind,
+                domain=modified_element,
+            )
+        )
+        # modify_attributes["oldkind"] = domain_kind
+        del modify_attributes["type"]
+
+    url = http_host + http_path
     _LOGGER.info("STEP: %s item: %s", api_type, modified_element)
     request = {
         "url": url,

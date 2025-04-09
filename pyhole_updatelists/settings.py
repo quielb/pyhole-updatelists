@@ -17,4 +17,5 @@ def load_settings() -> dict:
     app_config["LOG_LEVEL"] = app_config["LOG_LEVEL"].upper()
     app_config["UPDATE_GRAVITY"] = string_to_bool(app_config["UPDATE_GRAVITY"])
     app_config["VERIFY_SSL"] = string_to_bool(app_config["VERIFY_SSL"])
+    app_config["GROUP_ID"] = int(app_config["GROUP_ID"])
     return app_config

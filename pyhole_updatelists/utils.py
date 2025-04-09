@@ -10,7 +10,7 @@ def is_valid_regex(pattern):
 
 
 def string_to_bool(s):
-    if isinstance(s, bool) == bool:
+    if isinstance(s, bool):
         return s
     if s.lower() == "false":
         return False
