@@ -14,8 +14,7 @@ def is_regex(pattern):
     regex = re.compile(r"[^a-zA-Z0-9\.\s]")
     if regex.search(pattern) is not None:
         return True
-    else:
-        return False
+    return False
 
 
 def string_to_bool(s):
