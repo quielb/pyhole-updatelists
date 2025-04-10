@@ -89,7 +89,7 @@ def update_lists(element_type: str) -> None:
             array_elements.append(regex_domains)
 
         for array_element in array_elements:
-            if len(array_element) != 0:
+            if array_element:
                 pihole_api.add_managed_element(
                     new_elements=array_element, pihole_action=pihole_action
                 )
@@ -103,7 +103,7 @@ def update_lists(element_type: str) -> None:
                 group_list.remove(settings.app_config["GROUP_ID"])
             modify_attributes = {
                 "type": pihole_action,
-                "enabled": True if len(group_list) > 0 else False,
+                "enabled": bool(group_list),
                 "groups": group_list,
                 "comment": settings.app_config["COMMENT"],
             }
