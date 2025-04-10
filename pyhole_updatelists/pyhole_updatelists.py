@@ -10,6 +10,13 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def update_lists(element_type: str) -> None:
+    """
+    Update Managed elements in Pi-Hole from external sources.
+    STEPS:
+        Add new elements for GROUP_ID provided.
+        Remove GROUP_ID from external source that have been removed.
+        Update existing elements with GROUP_ID
+    """
     _LOGGER.info("Starting the update elements proccess")
 
     # Get existing managed elements from PiHole
@@ -76,17 +83,36 @@ def update_lists(element_type: str) -> None:
                 new_elements=new_elements, pihole_action=pihole_action
             )
 
-        # disable removed elements
-        disable_elements = list(
-            set(existing_elements.keys()) - set(managed_elements[pihole_action])
-        )
-        for disable_element in disable_elements:
+        # disable removed external elements by removing GROUP_ID from Group Assignment
+        # disable_elements = list(
+        #     set(existing_elements.keys()) - set(managed_elements[pihole_action])
+        # )
+        # for disable_element in disable_elements:
+        #     group_list = existing_elements[disable_element]["groups"]
+        #     if settings.app_config["GROUP_ID"] in group_list:
+        #         group_list.remove(settings.app_config["GROUP_ID"])
+        #     modify_attributes = {
+        #         "type": pihole_action,
+        #         "enabled": True,
+        #         "groups": group_list,
+        #         "comment": settings.app_config["COMMENT"],
+        #     }
+        #     pihole_api.update_managed_element(
+        #         modified_element=disable_element, modify_attributes=modify_attributes
+        #     )
+        for key, value in existing_elements.items():
+            group_list = value["groups"]
+            group_list.append(settings.app_config["GROUP_ID"])
+            group_list = list(set(group_list))
+            if key not in managed_elements[pihole_action]:
+                group_list.remove(settings.app_config["GROUP_ID"])
             modify_attributes = {
                 "type": pihole_action,
-                "enabled": False,
-                "groups": [int(settings.app_config["GROUP_ID"])],
+                "enabled": True,
+                "groups": group_list,
                 "comment": settings.app_config["COMMENT"],
             }
             pihole_api.update_managed_element(
-                modified_element=disable_element, modify_attributes=modify_attributes
+                modified_element=key,
+                modify_attributes=modify_attributes,
             )
