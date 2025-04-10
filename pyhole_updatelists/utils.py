@@ -1,11 +1,20 @@
 import re
 
 
-def is_valid_regex(pattern):
-    try:
-        re.compile(pattern)
+def is_regex(pattern):
+    """
+    Checks if the given string contains special characters using regex.
+
+    Args:
+        text: The input string.
+
+    Returns:
+        True if the string contains special characters, False otherwise.
+    """
+    regex = re.compile(r"[^a-zA-Z0-9\.\s]")
+    if regex.search(pattern) is not None:
         return True
-    except re.error:
+    else:
         return False
 
 
