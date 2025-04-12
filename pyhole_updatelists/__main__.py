@@ -20,10 +20,10 @@ def main() -> int:
 
     # If PiHole API key or URL not specified then bail.
     if settings.app_config.get("PIHOLE_API_KEY", None) is None:
-        _LOGGER.error("Missing PiHole API key, exiting.")
+        _LOGGER.error("Missing Pi-Hole API key, exiting.")
         return 1
     if settings.app_config.get("PIHOLE_URL", None) is None:
-        _LOGGER.error("Missing PiHole URL, exiting.")
+        _LOGGER.error("Missing Pi-Hole URL, exiting.")
         return 1
 
     # attempt to connect to PiHole API and get an auth token

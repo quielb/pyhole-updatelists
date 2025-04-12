@@ -4,7 +4,7 @@ from . import settings
 from . import http_actions
 from . import pihole_api
 from .const import PIHOLE_ACTIONS
-from .utils import strip_comments
+from .utils import strip_comments, is_regex
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -47,11 +47,6 @@ def update_lists(element_type: str) -> None:
         # re-arrange existing PiHole elements into a Dict, keyed by address
         # and separate by pihole_action
         existing_elements = {}
-        _LOGGER.info(
-            "Arranging %s existing %s",
-            len(managed_elements["existing"]),
-            element_type,
-        )
         for managed_element in managed_elements["existing"]:
             key = "address"
             if element_type == "domains":
@@ -73,33 +68,33 @@ def update_lists(element_type: str) -> None:
             set(managed_elements[pihole_action]) - set(existing_elements.keys())
         )
         _LOGGER.info(
-            "STEP: Add %s of type %s and action %s to PiHole",
+            "STEP: Add %s of type %s and action %s to Pi-Hole",
             len(new_elements),
             element_type,
             pihole_action,
         )
-        if len(new_elements) != 0:
-            pihole_api.add_managed_element(
-                new_elements=new_elements, pihole_action=pihole_action
-            )
+        array_elements = []
+        array_elements.append(new_elements)
+        # Split domains between exact and regex and send to API
+        if element_type == "domains":
+            exact_domains = []
+            regex_domains = []
+            for element in new_elements:
+                if is_regex(element):
+                    regex_domains.append(element)
+                else:
+                    exact_domains.append(element)
+            array_elements.clear()
+            array_elements.append(exact_domains)
+            array_elements.append(regex_domains)
 
-        # disable removed external elements by removing GROUP_ID from Group Assignment
-        # disable_elements = list(
-        #     set(existing_elements.keys()) - set(managed_elements[pihole_action])
-        # )
-        # for disable_element in disable_elements:
-        #     group_list = existing_elements[disable_element]["groups"]
-        #     if settings.app_config["GROUP_ID"] in group_list:
-        #         group_list.remove(settings.app_config["GROUP_ID"])
-        #     modify_attributes = {
-        #         "type": pihole_action,
-        #         "enabled": True,
-        #         "groups": group_list,
-        #         "comment": settings.app_config["COMMENT"],
-        #     }
-        #     pihole_api.update_managed_element(
-        #         modified_element=disable_element, modify_attributes=modify_attributes
-        #     )
+        for array_element in array_elements:
+            if array_element:
+                pihole_api.add_managed_element(
+                    new_elements=array_element, pihole_action=pihole_action
+                )
+
+        # Toggle existing managed elements based on existence in external resources
         for key, value in existing_elements.items():
             group_list = value["groups"]
             group_list.append(settings.app_config["GROUP_ID"])
@@ -108,7 +103,7 @@ def update_lists(element_type: str) -> None:
                 group_list.remove(settings.app_config["GROUP_ID"])
             modify_attributes = {
                 "type": pihole_action,
-                "enabled": True,
+                "enabled": bool(group_list),
                 "groups": group_list,
                 "comment": settings.app_config["COMMENT"],
             }

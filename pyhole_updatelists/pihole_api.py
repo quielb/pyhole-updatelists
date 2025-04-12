@@ -6,7 +6,7 @@ import validators
 from requests.utils import quote as url_encode  # type: ignore
 from . import settings
 from .http_actions import send_it
-from .utils import is_valid_regex
+from .utils import is_regex
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -29,10 +29,11 @@ API_CALLS = {
 
 
 def add_managed_element(new_elements: list, pihole_action: str) -> None:
-    _LOGGER.info("Adding new elements to PiHole")
+    _LOGGER.info("Prepair API call to add new elements to Pi-Hole")
     # Setup for a element type of List
     api_type = "add_lists"
-    url = f"{settings.app_config['PIHOLE_URL']}{API_CALLS[api_type]['api']}"
+    http_host = settings.app_config["PIHOLE_URL"]
+    http_path = API_CALLS[api_type]["api"]
     http_body = {
         "type": pihole_action,
         "comment": settings.app_config["COMMENT"],
@@ -44,16 +45,17 @@ def add_managed_element(new_elements: list, pihole_action: str) -> None:
     if not validators.url(new_elements[0]):
         api_type = "add_domains"
         domain_kind = "exact"
-        if is_valid_regex(new_elements[0]):
+        if is_regex(new_elements[0]):
             domain_kind = "regex"
-        url = f"{settings.app_config['PIHOLE_URL']}{API_CALLS[api_type]['api'].format(type=pihole_action, kind=domain_kind)}"  # pylint: disable=C0301
+        http_path = (
+            f"{API_CALLS[api_type]['api'].format(type=pihole_action, kind=domain_kind)}"
+        )
         del http_body["address"]
         del http_body["type"]
         http_body["domain"] = new_elements
-    _LOGGER.info(
-        "STEP: %s action: %s qty: %s", api_type, pihole_action, len(new_elements)
-    )
+    _LOGGER.info("%s action: %s qty: %s", api_type, pihole_action, len(new_elements))
 
+    url = http_host + http_path
     http_request = {
         "url": url,
         "method": API_CALLS[api_type]["method"],
@@ -137,10 +139,9 @@ def update_managed_element(modified_element: str, modify_attributes: dict) -> No
     http_path = url_encode(API_CALLS[api_type]["api"].format(modified_element))
 
     if not validators.url(modified_element):
-        # Bug fix for undocumented option
         api_type = "modify_domains"
         domain_kind = "exact"
-        if is_valid_regex(modified_element):
+        if is_regex(modified_element):
             domain_kind = "regex"
         http_host = settings.app_config["PIHOLE_URL"]
         http_path = url_encode(
