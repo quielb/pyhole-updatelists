@@ -34,10 +34,10 @@ dependencies = [
 ]
 
 [project.urls]
-HomePage = "https://www.github.com/quielb/pyhole-updatelists",
-Documentation = "https://www.github.com/quielb/pyhole-updatelists",
-Repository = "https://www.github.com/quielb/pyhole-updatelists.git",
-"Bug Tracker" = "https://www.github.com/quielb/pyhole-updatelists/issues",
+HomePage = "https://www.github.com/quielb/pyhole-updatelists"
+Documentation = "https://www.github.com/quielb/pyhole-updatelists"
+Repository = "https://www.github.com/quielb/pyhole-updatelists.git"
+"Bug Tracker" = "https://www.github.com/quielb/pyhole-updatelists/issues"
 
 [project.scripts]
 pyhole-updatelists = "pyhole_updatelists.__main__:main"
