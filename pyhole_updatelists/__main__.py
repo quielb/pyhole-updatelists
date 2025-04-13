@@ -25,7 +25,11 @@ def main() -> int:
     if settings.app_config.get("PIHOLE_URL", None) is None:
         _LOGGER.error("Missing PiHole URL, exiting.")
         return 1
-
+    _LOGGER.debug(
+        "Updating lists on Pi-Hole server %s with key %s",
+        settings.app_config["PIHOLE_URL"],
+        settings.app_config["PIHOLE_API_KEY"],
+    )
     # attempt to connect to PiHole API and get an auth token
     get_auth_token()
     for element in PIHOLE_ACTIONS.keys():  # pylint: disable=C0201
