@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools==77.0.3", "setuptools-scm >= 8"]
+requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -44,6 +44,8 @@ pyhole-updatelists = "pyhole_updatelists.__main__:main"
 
 [tool.setuptools.packages.find]
 include = ["pyhole_updatelists"]
+
+[tool.setuptools_scm]
 
 [tool.pylint.messages_control]
 disable = [
